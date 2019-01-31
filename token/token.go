@@ -30,3 +30,22 @@ const (
 	// QUOTE is a `"` token.
 	QUOTE Kind = `"`
 )
+
+var identifiers = map[string]struct{}{
+	"b":     {},
+	"quote": {},
+	"url":   {},
+	"img":   {},
+	"size":  {},
+}
+
+// RegisterIdentifier registers a new identifier.
+func RegisterIdentifier(ident string) {
+	identifiers[ident] = struct{}{}
+}
+
+// IsValidIndetifier determines whether the given identifier is valid.
+func IsValidIndetifier(ident string) bool {
+	_, ok := identifiers[ident]
+	return ok
+}

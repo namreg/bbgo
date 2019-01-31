@@ -7,10 +7,12 @@ import (
 // Lexer retreives tokens from input string.
 type Lexer struct {
 	input          []rune
-	position       int  // current position in input (points to current char)
-	readPosition   int  // current reading position in input (after current char)
-	ch             rune // current char under examination
+	position       int  // current position in input (points to current rune)
+	readPosition   int  // current reading position in input (after current rune)
+	ch             rune // current rune under examination
 	insideBrackets bool // indicates whether the current position inside the brackets
+	insideQuote    bool // indicates whether the current position inside the quote
+	insideAttr     bool // indicates whether the current position inside the attribute
 }
 
 // New creates a new Lexer and initialized it with the input string.
@@ -32,18 +34,34 @@ func (l *Lexer) NextToken() token.Token {
 		l.insideBrackets = false
 		tok = l.newToken(token.RBRACKET, l.ch)
 	case '=':
+		l.insideAttr = l.insideBrackets
 		tok = l.newToken(token.EQUAL, l.ch)
 	case '"':
+		l.insideQuote = !l.insideQuote
 		tok = l.newToken(token.QUOTE, l.ch)
 	case '/':
 		tok = l.newToken(token.SLASH, l.ch)
 	case 0:
 		tok.Kind = token.EOF
 	default:
-		if l.insideBrackets && l.isValidIdentifierRune(l.ch) {
-			tok.Kind = token.IDENT
-			tok.Literal = l.readIdentifier()
-			return tok
+		if l.insideBrackets {
+			if l.insideAttr {
+				tok.Kind = token.STRING
+				tok.Literal = l.readAttr()
+				l.insideAttr = false
+				return tok
+			}
+
+			if l.isValidIdentifierRune(l.ch) {
+				kind := token.IDENT
+				ident := l.readIdentifier()
+				if !token.IsValidIndetifier(ident) {
+					kind = token.STRING
+				}
+				tok.Kind = kind
+				tok.Literal = ident
+				return tok
+			}
 		}
 
 		tok.Kind = token.STRING
@@ -53,6 +71,28 @@ func (l *Lexer) NextToken() token.Token {
 
 	l.readChar()
 	return tok
+}
+
+func (l *Lexer) readUntil(r ...rune) string {
+	position := l.position
+	for !l.runeInSlice(l.ch, r) {
+		l.readChar()
+	}
+	return string(l.input[position:l.position])
+}
+
+func (l *Lexer) readAttr() string {
+	if l.insideQuote {
+		return l.readUntil('"')
+	}
+	position := l.position
+	for {
+		if l.ch == 0 || l.ch == ' ' || l.peekChar() == ']' || (l.peekChar() == '/' && l.peek2Char() == ']') {
+			l.readChar() // due to the peekChar
+			return string(l.input[position:l.position])
+		}
+		l.readChar()
+	}
 }
 
 func (l *Lexer) runeInSlice(r rune, s []rune) bool {
@@ -97,4 +137,18 @@ func (l *Lexer) readChar() {
 	}
 	l.position = l.readPosition
 	l.readPosition++
+}
+
+func (l *Lexer) peekChar() rune {
+	if l.readPosition >= len(l.input) {
+		return 0
+	}
+	return l.input[l.readPosition]
+}
+
+func (l *Lexer) peek2Char() rune {
+	if l.readPosition+1 >= len(l.input) {
+		return 0
+	}
+	return l.input[l.readPosition+1]
 }

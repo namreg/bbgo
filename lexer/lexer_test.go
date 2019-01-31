@@ -8,12 +8,49 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `[b]bold][[/b]`
+	input := `[foo=bar][url=https://google.com /][quote="автор цитаты"]цитата[/quote][size=400%]hi[/size][b]bold][[/b]`
 
 	tests := []struct {
 		expectedKind    token.Kind
 		expectedLiteral string
 	}{
+		{token.LBRACKET, "["},
+		{token.STRING, "foo"},
+		{token.EQUAL, "="},
+		{token.STRING, "bar"},
+		{token.RBRACKET, "]"},
+
+		{token.LBRACKET, "["},
+		{token.IDENT, "url"},
+		{token.EQUAL, "="},
+		{token.STRING, "https://google.com "},
+		{token.SLASH, "/"},
+		{token.RBRACKET, "]"},
+
+		{token.LBRACKET, "["},
+		{token.IDENT, "quote"},
+		{token.EQUAL, "="},
+		{token.QUOTE, `"`},
+		{token.STRING, "автор цитаты"},
+		{token.QUOTE, `"`},
+		{token.RBRACKET, "]"},
+		{token.STRING, "цитата"},
+		{token.LBRACKET, "["},
+		{token.SLASH, "/"},
+		{token.IDENT, "quote"},
+		{token.RBRACKET, "]"},
+
+		{token.LBRACKET, "["},
+		{token.IDENT, "size"},
+		{token.EQUAL, "="},
+		{token.STRING, "400%"},
+		{token.RBRACKET, "]"},
+		{token.STRING, "hi"},
+		{token.LBRACKET, "["},
+		{token.SLASH, "/"},
+		{token.IDENT, "size"},
+		{token.RBRACKET, "]"},
+
 		{token.LBRACKET, "["},
 		{token.IDENT, "b"},
 		{token.RBRACKET, "]"},
