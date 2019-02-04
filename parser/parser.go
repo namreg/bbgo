@@ -124,7 +124,7 @@ func (p *Parser) nextToken() bool {
 	p.currToken = p.peekToken
 	p.peekToken = p.lex.NextToken()
 
-	if (p.currToken != token.Token{}) && (p.currToken.Kind != token.EOF) {
+	if !token.IsEmpty(p.currToken) && !p.currTokenIs(token.EOF) {
 		p.buf = append(p.buf, p.currToken)
 	}
 

@@ -49,3 +49,8 @@ func IsValidIndetifier(ident string) bool {
 	_, ok := identifiers[ident]
 	return ok
 }
+
+// IsEmpty determines whether the given token is empty.
+func IsEmpty(t Token) bool {
+	return t == Token{}
+}
