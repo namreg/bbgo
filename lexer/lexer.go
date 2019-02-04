@@ -1,6 +1,8 @@
 package lexer
 
 import (
+	"unicode"
+
 	"github.com/namreg/bbgo/token"
 )
 
@@ -37,8 +39,17 @@ func (l *Lexer) NextToken() token.Token {
 		l.insideAttr = l.insideBrackets
 		tok = l.newToken(token.EQUAL, l.ch)
 	case '"':
+
 		l.insideQuote = !l.insideQuote
 		tok = l.newToken(token.QUOTE, l.ch)
+
+		if l.insideBrackets && !l.insideQuote {
+			if unicode.IsSpace(l.peekChar()) { // ignore whitespaces after attribute
+				l.readChar()
+				l.skipWhitespaces()
+				return tok
+			}
+		}
 	case '/':
 		tok = l.newToken(token.SLASH, l.ch)
 	case 0:
@@ -55,7 +66,7 @@ func (l *Lexer) NextToken() token.Token {
 			if l.isValidIdentifierRune(l.ch) {
 				kind := token.IDENT
 				ident := l.readIdentifier()
-				if !token.IsValidIndetifier(ident) {
+				if !token.IsValidIndetifier(ident) { // check whether the readed indentifier defined as allowed
 					kind = token.STRING
 				}
 				tok.Kind = kind
@@ -118,6 +129,12 @@ func (l *Lexer) readIdentifier() string {
 		l.readChar()
 	}
 	return string(l.input[position:l.position])
+}
+
+func (l *Lexer) skipWhitespaces() {
+	for unicode.IsSpace(l.ch) {
+		l.readChar()
+	}
 }
 
 func (l *Lexer) isValidIdentifierRune(r rune) bool {

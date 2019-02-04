@@ -11,9 +11,10 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	input := `[b]text[[/b][/b][/foo]bar[][size=111][size="300%]`
+	input := `[url="https://google.com" /][b]text[[/b][/b][/foo]bar[][size=111][size="300%]`
 
 	expectedNodes := []node.Node{
+		node.NewSelfClosingTag(token.Token{Kind: token.IDENT, Literal: "url"}, `https://google.com`),
 		node.NewOpeningTag(token.Token{Kind: token.IDENT, Literal: "b"}, ""),
 		node.NewText(token.Token{Kind: token.STRING, Literal: "text"}, "text["),
 		node.NewClosingTag(token.Token{Kind: token.IDENT, Literal: "b"}),

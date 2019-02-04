@@ -12,7 +12,9 @@ const internalBufCap = 20
 
 // Parser parses tokens into nodes.
 type Parser struct {
-	lex       *lexer.Lexer
+	lex *lexer.Lexer
+
+	prevToken token.Token
 	currToken token.Token
 	peekToken token.Token
 
@@ -37,41 +39,44 @@ func New(lex *lexer.Lexer) *Parser {
 func (p *Parser) Parse() []node.Node {
 	nodes := make([]node.Node, 0)
 LOOP:
-	for p.currToken.Kind != token.EOF {
+	for !p.currTokenIs(token.EOF) {
+	SWITCH:
 		switch {
 		case p.currTokenIs(token.LBRACKET) && p.peekTokenIs(token.SLASH): // seems to be a closing tag
 			p.nextToken()
 			p.nextToken()
-			if p.currToken.Kind != token.IDENT || p.peekToken.Kind != token.RBRACKET {
+			if !p.currTokenIs(token.IDENT) || !p.peekTokenIs(token.RBRACKET) {
 				nodes = p.drainBuf(nodes)
-				break
+				break SWITCH
 			}
 			nodes = append(nodes, node.NewClosingTag(p.currToken))
 			p.nextToken()
 		case p.currTokenIs(token.LBRACKET) && p.peekTokenIs(token.IDENT): // seems to be an opening tag
 			p.nextToken()
-			tag := p.currToken
+			tagToken := p.currToken
 			var attr string
 			if p.peekTokenIs(token.EQUAL) { // seems to be an attribute
 				p.nextToken()
 				if p.peekTokenIs(token.QUOTE) { // an attribute within quotes
 					p.nextToken()
-					p.nextToken()
-					if p.currTokenIs(token.STRING) {
-						attr = p.currToken.Literal
+					if p.peekTokenIs(token.STRING) {
+						attr = p.peekToken.Literal
 					}
 				} else if p.peekTokenIs(token.STRING) {
-					p.nextToken()
-					attr = p.currToken.Literal
+					attr = p.peekToken.Literal
 				}
 			}
 
 			for !p.currTokenIs(token.RBRACKET) {
 				if !p.nextToken() {
-					break LOOP
+					break LOOP // we are at the end of the input. (EOF)
 				}
 			}
-			nodes = append(nodes, node.NewOpeningTag(tag, attr))
+			if p.prevTokenIs(token.SLASH) { // seems to be a self-closing tag
+				nodes = append(nodes, node.NewSelfClosingTag(tagToken, attr))
+			} else {
+				nodes = append(nodes, node.NewOpeningTag(tagToken, attr))
+			}
 		default:
 			nodes = p.drainBuf(nodes)
 		}
@@ -120,7 +125,15 @@ func (p *Parser) peekTokenIs(k token.Kind) bool {
 	return p.peekToken.Kind == k
 }
 
+func (p *Parser) prevTokenIs(k token.Kind) bool {
+	if token.IsEmpty(p.prevToken) {
+		return false
+	}
+	return k == p.prevToken.Kind
+}
+
 func (p *Parser) nextToken() bool {
+	p.prevToken = p.currToken
 	p.currToken = p.peekToken
 	p.peekToken = p.lex.NextToken()
 
