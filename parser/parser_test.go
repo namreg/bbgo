@@ -11,7 +11,7 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	input := `[b]text[[/b][/b][/foo]bar[]`
+	input := `[b]text[[/b][/b][/foo]bar[][size=111][size="300%]`
 
 	expectedNodes := []node.Node{
 		node.NewOpeningTag(token.Token{Kind: token.IDENT, Literal: "b"}, ""),
@@ -19,6 +19,8 @@ func TestParse(t *testing.T) {
 		node.NewClosingTag(token.Token{Kind: token.IDENT, Literal: "b"}),
 		node.NewClosingTag(token.Token{Kind: token.IDENT, Literal: "b"}),
 		node.NewText(token.Token{Kind: token.STRING, Literal: "["}, "[/foo]bar[]"),
+		node.NewOpeningTag(token.Token{Kind: token.IDENT, Literal: "size"}, "111"),
+		node.NewText(token.Token{Kind: token.STRING, Literal: "["}, `[size="300%]`),
 	}
 
 	lex := lexer.New(input)

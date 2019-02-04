@@ -75,7 +75,7 @@ func (l *Lexer) NextToken() token.Token {
 
 func (l *Lexer) readUntil(r ...rune) string {
 	position := l.position
-	for !l.runeInSlice(l.ch, r) {
+	for !l.runeInSlice(l.ch, r) && l.ch != 0 {
 		l.readChar()
 	}
 	return string(l.input[position:l.position])

@@ -49,8 +49,23 @@ LOOP:
 			nodes = append(nodes, node.NewClosingTag(p.currToken))
 			p.nextToken()
 		case p.currTokenIs(token.LBRACKET) && p.peekTokenIs(token.IDENT): // seems to be an opening tag
-			tag := p.peekToken
+			p.nextToken()
+			tag := p.currToken
 			var attr string
+			if p.peekTokenIs(token.EQUAL) { // seems to be an attribute
+				p.nextToken()
+				if p.peekTokenIs(token.QUOTE) { // an attribute within quotes
+					p.nextToken()
+					p.nextToken()
+					if p.currTokenIs(token.STRING) {
+						attr = p.currToken.Literal
+					}
+				} else if p.peekTokenIs(token.STRING) {
+					p.nextToken()
+					attr = p.currToken.Literal
+				}
+			}
+
 			for !p.currTokenIs(token.RBRACKET) {
 				if !p.nextToken() {
 					break LOOP

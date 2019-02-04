@@ -83,12 +83,25 @@ func TestNextToken(t *testing.T) {
 }
 
 func TestNextToken2(t *testing.T) {
-	input := `[b]text`
+	input := `[b]text[size="300%]`
 
 	tests := []struct {
 		expectedKind    token.Kind
 		expectedLiteral string
-	}{}
+	}{
+		{token.LBRACKET, "["},
+		{token.IDENT, "b"},
+		{token.RBRACKET, "]"},
+		{token.STRING, "text"},
+
+		{token.LBRACKET, "["},
+		{token.IDENT, "size"},
+		{token.EQUAL, "="},
+		{token.QUOTE, `"`},
+		{token.STRING, "300%]"},
+
+		{token.EOF, ""},
+	}
 
 	l := lexer.New(input)
 
