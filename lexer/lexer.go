@@ -28,6 +28,10 @@ func New(input string) *Lexer {
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
+	if l.insideBrackets && !l.insideAttr {
+		l.skipWhitespaces() // ignore whitwspaces inside brackets
+	}
+
 	switch l.ch {
 	case '[':
 		l.insideBrackets = true
@@ -39,26 +43,18 @@ func (l *Lexer) NextToken() token.Token {
 		l.insideAttr = l.insideBrackets
 		tok = l.newToken(token.EQUAL, l.ch)
 	case '"':
-
 		l.insideQuote = !l.insideQuote
 		tok = l.newToken(token.QUOTE, l.ch)
-
-		if l.insideBrackets && !l.insideQuote {
-			if unicode.IsSpace(l.peekChar()) { // ignore whitespaces after attribute
-				l.readChar()
-				l.skipWhitespaces()
-				return tok
-			}
-		}
 	case '/':
 		tok = l.newToken(token.SLASH, l.ch)
+	// TODO(namreg): NEWLINE token
 	case 0:
 		tok.Kind = token.EOF
 	default:
 		if l.insideBrackets {
 			if l.insideAttr {
 				tok.Kind = token.STRING
-				tok.Literal = l.readAttr()
+				tok.Literal = l.readAttrValue()
 				l.insideAttr = false
 				return tok
 			}
@@ -92,18 +88,23 @@ func (l *Lexer) readUntil(r ...rune) string {
 	return string(l.input[position:l.position])
 }
 
-func (l *Lexer) readAttr() string {
+func (l *Lexer) readAttrValue() string {
 	if l.insideQuote {
 		return l.readUntil('"')
 	}
 	position := l.position
+LOOP:
 	for {
-		if l.ch == 0 || l.ch == ' ' || l.peekChar() == ']' || (l.peekChar() == '/' && l.peek2Char() == ']') {
+		switch {
+		case l.ch == 0 || l.ch == ' ':
+			break LOOP
+		case l.peekChar() == ']' || (l.peekChar() == '/' && l.peek2Char() == ']'):
 			l.readChar() // due to the peekChar
-			return string(l.input[position:l.position])
+			break LOOP
 		}
 		l.readChar()
 	}
+	return string(l.input[position:l.position])
 }
 
 func (l *Lexer) runeInSlice(r rune, s []rune) bool {

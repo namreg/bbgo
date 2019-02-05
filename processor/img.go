@@ -11,9 +11,9 @@ func Img(tag node.Tag, w io.Writer) {
 	switch t := tag.(type) {
 	case *node.OpeningTag:
 		io.WriteString(w, `<img `)
-		if a := t.Attr(); a != "" {
+		if v := t.Value(); v != "" {
 			io.WriteString(w, `title="`)
-			io.WriteString(w, a)
+			io.WriteString(w, v)
 			io.WriteString(w, `" `)
 		}
 		io.WriteString(w, `src="`)

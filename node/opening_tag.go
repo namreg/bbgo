@@ -1,7 +1,8 @@
 package node
 
 import (
-	"fmt"
+	"sort"
+	"strings"
 
 	"github.com/namreg/bbgo/token"
 )
@@ -10,13 +11,18 @@ var _ Tag = (*OpeningTag)(nil)
 
 // OpeningTag is a bbcode opening tag, i.e. [b]
 type OpeningTag struct {
-	tok  token.Token
-	attr string
+	tok   token.Token
+	value string
+	attrs map[string]string
 }
 
 // NewOpeningTag creates a new opening tag.
-func NewOpeningTag(tok token.Token, attr string) *OpeningTag {
-	return &OpeningTag{tok: tok, attr: attr}
+func NewOpeningTag(tok token.Token, value string, attrs map[string]string) *OpeningTag {
+	return &OpeningTag{
+		tok:   tok,
+		value: value,
+		attrs: attrs,
+	}
 }
 
 // Token satisfies to the Node interface.
@@ -26,10 +32,33 @@ func (ot *OpeningTag) Token() token.Token {
 
 // String satisfies to the Node interface.
 func (ot *OpeningTag) String() string {
-	if ot.attr != "" {
-		return fmt.Sprintf(`[%s="%s"]`, ot.TagName(), ot.Attr())
+	var sb strings.Builder
+	sb.WriteByte('[')
+	sb.WriteString(ot.TagName())
+
+	if ot.value != "" {
+		sb.WriteByte('=')
+		sb.WriteString(ot.value)
 	}
-	return fmt.Sprintf("[%s]", ot.TagName())
+
+	akeys := make([]string, len(ot.attrs))
+	for k := range ot.attrs {
+		akeys = append(akeys, k)
+	}
+
+	sort.Strings(akeys)
+
+	for _, k := range akeys {
+		sb.WriteByte(' ')
+		sb.WriteString(k)
+		sb.WriteString(`="`)
+		sb.WriteString(ot.attrs[k])
+		sb.WriteByte('"')
+	}
+
+	sb.WriteByte(']')
+
+	return sb.String()
 }
 
 // TagName satifies to the Node interface.
@@ -37,7 +66,7 @@ func (ot *OpeningTag) TagName() string {
 	return ot.tok.Literal
 }
 
-// Attr returns a bbcode tag attribute.
-func (ot *OpeningTag) Attr() string {
-	return ot.attr
+// Value returns a bbcode tag value (string after =).
+func (ot *OpeningTag) Value() string {
+	return ot.value
 }

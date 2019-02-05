@@ -25,7 +25,7 @@ func TestNextToken(t *testing.T) {
 		{token.LBRACKET, "["},
 		{token.IDENT, "url"},
 		{token.EQUAL, "="},
-		{token.STRING, "https://google.com "},
+		{token.STRING, "https://google.com"},
 		{token.SLASH, "/"},
 		{token.RBRACKET, "]"},
 
@@ -85,7 +85,7 @@ func TestNextToken(t *testing.T) {
 }
 
 func TestNextToken2(t *testing.T) {
-	token.RegisterIdentifiers("b", "size")
+	token.RegisterIdentifiers("quote", "url", "b", "size")
 
 	input := `[b]text[url="https://google.com" /][size="300%]`
 
@@ -121,7 +121,51 @@ func TestNextToken2(t *testing.T) {
 	for i, tt := range tests {
 		tok := l.NextToken()
 		if tt.expectedKind != tok.Kind {
-			//t.Fatalf("Test #%d failed (Unexpected kind). Want = %v, got = %v", i, tt.expectedKind, tok.Kind)
+			t.Fatalf("Test #%d failed (Unexpected kind). Want = %v, got = %v", i, tt.expectedKind, tok.Kind)
+		}
+		if tt.expectedLiteral != tok.Literal {
+			t.Fatalf("Test #%d failed (Unexpected literal). Want = %v, got = %v", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}
+
+func TestNextToken3(t *testing.T) {
+	token.RegisterIdentifiers("quote")
+
+	input := `[quote=hello author="foo bar" var=val]hello world[/quote]`
+
+	tests := []struct {
+		expectedKind    token.Kind
+		expectedLiteral string
+	}{
+		{token.LBRACKET, "["},
+		{token.IDENT, "quote"},
+		{token.EQUAL, "="},
+		{token.STRING, "hello"},
+		{token.STRING, "author"},
+		{token.EQUAL, "="},
+		{token.QUOTE, `"`},
+		{token.STRING, "foo bar"},
+		{token.QUOTE, `"`},
+		{token.STRING, "var"},
+		{token.EQUAL, "="},
+		{token.STRING, "val"},
+		{token.RBRACKET, "]"},
+		{token.STRING, "hello world"},
+		{token.LBRACKET, "["},
+		{token.SLASH, "/"},
+		{token.IDENT, "quote"},
+		{token.RBRACKET, "]"},
+
+		{token.EOF, ""},
+	}
+
+	l := lexer.New(input)
+
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tt.expectedKind != tok.Kind {
+			t.Fatalf("Test #%d failed (Unexpected kind). Want = %v, got = %v", i, tt.expectedKind, tok.Kind)
 		}
 		if tt.expectedLiteral != tok.Literal {
 			t.Fatalf("Test #%d failed (Unexpected literal). Want = %v, got = %v", i, tt.expectedLiteral, tok.Literal)

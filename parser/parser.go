@@ -53,29 +53,25 @@ LOOP:
 			p.nextToken()
 		case p.currTokenIs(token.LBRACKET) && p.peekTokenIs(token.IDENT): // seems to be an opening tag
 			p.nextToken()
+
 			tagToken := p.currToken
-			var attr string
-			if p.peekTokenIs(token.EQUAL) { // seems to be an attribute
-				p.nextToken()
-				if p.peekTokenIs(token.QUOTE) { // an attribute within quotes
-					p.nextToken()
-					if p.peekTokenIs(token.STRING) {
-						attr = p.peekToken.Literal
-					}
-				} else if p.peekTokenIs(token.STRING) {
-					attr = p.peekToken.Literal
-				}
-			}
+
+			val := p.readTagValue()
+
+			attrs := make(map[string]string)
 
 			for !p.currTokenIs(token.RBRACKET) {
+				if ak, av := p.readAttrKeyValue(); ak != "" && av != "" {
+					attrs[ak] = av
+				}
 				if !p.nextToken() {
 					break LOOP // we are at the end of the input. (EOF)
 				}
 			}
 			if p.prevTokenIs(token.SLASH) { // seems to be a self-closing tag
-				nodes = append(nodes, node.NewSelfClosingTag(tagToken, attr))
+				nodes = append(nodes, node.NewSelfClosingTag(tagToken, val, attrs))
 			} else {
-				nodes = append(nodes, node.NewOpeningTag(tagToken, attr))
+				nodes = append(nodes, node.NewOpeningTag(tagToken, val, attrs))
 			}
 		default:
 			nodes = p.drainBuf(nodes)
@@ -84,6 +80,37 @@ LOOP:
 		p.nextToken()
 	}
 	return p.drainBuf(nodes)
+}
+
+func (p *Parser) readTagValue() string {
+	if p.peekTokenIs(token.EQUAL) { // seems to be a tag value
+		p.nextToken()
+		if p.peekTokenIs(token.QUOTE) { // a value within quotes
+			p.nextToken()
+			if p.peekTokenIs(token.STRING) {
+				return p.peekToken.Literal
+			}
+		} else if p.peekTokenIs(token.STRING) {
+			return p.peekToken.Literal
+		}
+	}
+	return ""
+}
+
+func (p *Parser) readAttrKeyValue() (string, string) {
+	if p.currTokenIs(token.EQUAL) && !p.prevTokenIs(token.IDENT) { // seems to an attribute
+		ak := p.prevToken.Literal
+		if p.peekTokenIs(token.QUOTE) {
+			p.nextToken()
+		}
+		if p.peekTokenIs(token.STRING) {
+			p.nextToken()
+			av := p.currToken.Literal
+			return ak, av
+		}
+		return ak, ""
+	}
+	return "", ""
 }
 
 func (p *Parser) resetBuf() {

@@ -13,16 +13,16 @@ import (
 func TestParse(t *testing.T) {
 	token.RegisterIdentifiers("url", "b", "size")
 
-	input := `[url="https://google.com" /][b]text[[/b][/b][/foo]bar[][size=111][size="300%]`
+	input := `[url="https://google.com"  foo=bar buzz="bar bar" /][b]text[[/b][/b][/foo]bar[][size=111][size="300%]`
 
 	expectedNodes := []node.Node{
-		node.NewSelfClosingTag(token.Token{Kind: token.IDENT, Literal: "url"}, `https://google.com`),
-		node.NewOpeningTag(token.Token{Kind: token.IDENT, Literal: "b"}, ""),
+		node.NewSelfClosingTag(token.Token{Kind: token.IDENT, Literal: "url"}, `https://google.com`, map[string]string{"foo": "bar", "buzz": "bar bar"}),
+		node.NewOpeningTag(token.Token{Kind: token.IDENT, Literal: "b"}, "", nil),
 		node.NewText(token.Token{Kind: token.STRING, Literal: "text"}, "text["),
 		node.NewClosingTag(token.Token{Kind: token.IDENT, Literal: "b"}),
 		node.NewClosingTag(token.Token{Kind: token.IDENT, Literal: "b"}),
 		node.NewText(token.Token{Kind: token.STRING, Literal: "["}, "[/foo]bar[]"),
-		node.NewOpeningTag(token.Token{Kind: token.IDENT, Literal: "size"}, "111"),
+		node.NewOpeningTag(token.Token{Kind: token.IDENT, Literal: "size"}, "111", nil),
 		node.NewText(token.Token{Kind: token.STRING, Literal: "["}, `[size="300%]`),
 	}
 
