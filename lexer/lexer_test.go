@@ -8,6 +8,8 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
+	token.RegisterIdentifiers("url", "quote", "size", "b")
+
 	input := `[foo=bar][url=https://google.com /][quote="автор цитаты"]цитата[/quote][size=400%]hi[/size][b]bold][[/b][b]text`
 
 	tests := []struct {
@@ -83,6 +85,8 @@ func TestNextToken(t *testing.T) {
 }
 
 func TestNextToken2(t *testing.T) {
+	token.RegisterIdentifiers("b", "size")
+
 	input := `[b]text[url="https://google.com" /][size="300%]`
 
 	tests := []struct {

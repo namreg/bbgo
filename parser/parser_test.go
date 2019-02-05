@@ -11,6 +11,8 @@ import (
 )
 
 func TestParse(t *testing.T) {
+	token.RegisterIdentifiers("url", "b", "size")
+
 	input := `[url="https://google.com" /][b]text[[/b][/b][/foo]bar[][size=111][size="300%]`
 
 	expectedNodes := []node.Node{

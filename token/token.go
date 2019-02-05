@@ -31,17 +31,13 @@ const (
 	QUOTE Kind = `"`
 )
 
-var identifiers = map[string]struct{}{
-	"b":     {},
-	"quote": {},
-	"url":   {},
-	"img":   {},
-	"size":  {},
-}
+var identifiers = make(map[string]struct{})
 
-// RegisterIdentifier registers a new identifier.
-func RegisterIdentifier(ident string) {
-	identifiers[ident] = struct{}{}
+// RegisterIdentifiers registers a new identifiers.
+func RegisterIdentifiers(ident ...string) {
+	for _, i := range ident {
+		identifiers[i] = struct{}{}
+	}
 }
 
 // IsValidIndetifier determines whether the given identifier is valid.
