@@ -65,4 +65,5 @@ func (b *BBGO) Parse(input string) string {
 
 func (b *BBGO) registerDefaultProcessors() {
 	b.RegisterTag("b", Processor(processor.B))
+	b.RegisterTag("img", Processor(processor.Img))
 }

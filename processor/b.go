@@ -6,7 +6,7 @@ import (
 	"github.com/namreg/bbgo/node"
 )
 
-// B processor process [b] bbcode.
+// B processes [b] bbcode.
 func B(tag node.Tag, w io.Writer) {
 	switch tag.(type) {
 	case *node.OpeningTag:
