@@ -70,3 +70,8 @@ func (ot *OpeningTag) TagName() string {
 func (ot *OpeningTag) Value() string {
 	return ot.value
 }
+
+// Attrs returns a tag attributes.
+func (ot *OpeningTag) Attrs() map[string]string {
+	return ot.attrs
+}

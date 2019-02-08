@@ -19,6 +19,8 @@ func TestBBGO_Parse(t *testing.T) {
 		{"img", `[img]http://example.com/logo.png[/img]`, `<img src="http://example.com/logo.png" />`},
 		{"img with title", `[img="bla bla bla"]http://example.com/logo.png[/img]`, `<img title="bla bla bla" src="http://example.com/logo.png" />`},
 		{"img without src", `[img][/img]`, `<img src="" />`},
+		{"quote", "[quote]hello[/quote]", `<blockquote>hello</blockquote>`},
+		{"quote with attr", "[quote name=Someguy]hello[/quote]", `<blockquote><cite>Someguy said:</cite>hello</blockquote>`},
 	}
 
 	for _, tt := range tests {

@@ -1,5 +1,7 @@
 package token
 
+import "strings"
+
 // Kind is a token kind.
 type Kind string
 
@@ -42,7 +44,7 @@ func RegisterIdentifiers(ident ...string) {
 
 // IsValidIndetifier determines whether the given identifier is valid.
 func IsValidIndetifier(ident string) bool {
-	_, ok := identifiers[ident]
+	_, ok := identifiers[strings.ToLower(ident)]
 	return ok
 }
 
