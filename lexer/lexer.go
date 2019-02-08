@@ -118,7 +118,7 @@ func (l *Lexer) runeInSlice(r rune, s []rune) bool {
 
 func (l *Lexer) readString() string {
 	position := l.position
-	for !l.runeInSlice(l.ch, []rune{0, '[', ']', '/', '=', '"'}) {
+	for !l.runeInSlice(l.ch, []rune{0, '[', ']'}) {
 		l.readChar()
 	}
 	return string(l.input[position:l.position])

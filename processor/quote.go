@@ -3,11 +3,12 @@ package processor
 import (
 	"io"
 
+	"github.com/namreg/bbgo/context"
 	"github.com/namreg/bbgo/node"
 )
 
 // Quote processes [quote] bbcode.
-func Quote(tag node.Tag, w io.Writer) {
+func Quote(ctx *context.Context, tag node.Tag, w io.Writer) {
 	switch t := tag.(type) {
 	case *node.OpeningTag:
 		io.WriteString(w, `<blockquote>`)

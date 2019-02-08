@@ -3,6 +3,7 @@ package bbgo
 import (
 	"io"
 
+	"github.com/namreg/bbgo/context"
 	"github.com/namreg/bbgo/node"
 )
 
@@ -11,7 +12,7 @@ type TagConfig struct {
 	name        string
 	escape      bool
 	selfclosing bool
-	processor   func(node.Tag, io.Writer)
+	processor   func(*context.Context, node.Tag, io.Writer)
 }
 
 // TagOpt is tag option.
@@ -32,7 +33,7 @@ func SelfClsosing(b bool) TagOpt {
 }
 
 // Processor sets a tag processor.
-func Processor(p func(node.Tag, io.Writer)) TagOpt {
+func Processor(p func(*context.Context, node.Tag, io.Writer)) TagOpt {
 	return func(tg *TagConfig) {
 		tg.processor = p
 	}

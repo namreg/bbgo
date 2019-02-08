@@ -1,9 +1,11 @@
 package bbgo
 
 import (
+	basecontext "context"
 	"io"
 	"strings"
 
+	"github.com/namreg/bbgo/context"
 	"github.com/namreg/bbgo/lexer"
 	"github.com/namreg/bbgo/node"
 	"github.com/namreg/bbgo/parser"
@@ -44,6 +46,7 @@ func (b *BBGO) RegisterTag(name string, opts ...TagOpt) {
 
 // Parse parses the given input.
 func (b *BBGO) Parse(input string) string {
+	ctx := context.New(basecontext.Background())
 	sb := new(strings.Builder)
 
 	l := lexer.New(input)
@@ -52,12 +55,13 @@ func (b *BBGO) Parse(input string) string {
 	for _, n := range p.Parse() {
 		if t, ok := n.(node.Tag); ok {
 			if tc, ok := b.tags[t.TagName()]; ok {
-				tc.processor(t, sb)
-				continue
+				tc.processor(ctx, t, sb)
 			}
+		} else {
+			// todo(namreg): handle escapes
+			io.WriteString(sb, n.String())
 		}
-		// todo(namreg): handle escapes
-		io.WriteString(sb, n.String())
+		ctx.SetPrevNode(n)
 	}
 
 	return sb.String()
@@ -67,4 +71,5 @@ func (b *BBGO) registerDefaultProcessors() {
 	b.RegisterTag("b", Processor(processor.B))
 	b.RegisterTag("img", Processor(processor.Img))
 	b.RegisterTag("quote", Processor(processor.Quote))
+	b.RegisterTag("url", Processor(processor.URL))
 }
