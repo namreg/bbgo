@@ -68,8 +68,11 @@ func (b *BBGO) Parse(input string) string {
 }
 
 func (b *BBGO) registerDefaultProcessors() {
-	b.RegisterTag("b", Processor(processor.B))
 	b.RegisterTag("img", Processor(processor.Img))
 	b.RegisterTag("quote", Processor(processor.Quote))
 	b.RegisterTag("url", Processor(processor.URL))
+
+	for _, t := range []string{"i", "b", "u", "s"} {
+		b.RegisterTag(t, Processor(processor.Simple))
+	}
 }
