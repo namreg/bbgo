@@ -1,9 +1,11 @@
 package bbgo
 
 import (
-	basecontext "context"
+	"html"
 	"io"
 	"strings"
+
+	basecontext "context"
 
 	"github.com/namreg/bbgo/context"
 	"github.com/namreg/bbgo/lexer"
@@ -53,13 +55,13 @@ func (b *BBGO) Parse(input string) string {
 	p := parser.New(l)
 
 	for _, n := range p.Parse() {
+		// todo(namreg): handle raw mode
 		if t, ok := n.(node.Tag); ok {
 			if tc, ok := b.tags[t.TagName()]; ok {
 				tc.processor(ctx, t, sb)
 			}
 		} else {
-			// todo(namreg): handle escapes
-			io.WriteString(sb, n.String())
+			io.WriteString(sb, html.EscapeString(n.String()))
 		}
 		ctx.SetPrevNode(n)
 	}
