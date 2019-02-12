@@ -141,7 +141,7 @@ func (l *Lexer) skipWhitespaces() {
 
 func (l *Lexer) isValidIdentifierRune(r rune) bool {
 	// TODO(namreg): this is enough?
-	return 'a' <= r && r <= 'z' || 'A' <= r && r <= 'Z' || r == '-'
+	return 'a' <= r && r <= 'z' || 'A' <= r && r <= 'Z' || r == '-' || r == '*'
 }
 
 func (l *Lexer) newToken(kind token.Kind, ch rune) token.Token {

@@ -75,6 +75,8 @@ func (b *BBGO) registerDefaultProcessors() {
 	b.RegisterTag("img", Processor(processor.Img))
 	b.RegisterTag("quote", Processor(processor.Quote))
 	b.RegisterTag("url", Processor(processor.URL))
+	b.RegisterTag("list", Processor(processor.List))
+	b.RegisterTag("*", Processor(processor.Asterisk))
 
 	for _, t := range []string{"i", "b", "u", "s"} {
 		b.RegisterTag(t, Processor(processor.Simple))
