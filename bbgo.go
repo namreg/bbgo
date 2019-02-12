@@ -55,8 +55,7 @@ func (b *BBGO) Parse(input string) string {
 	p := parser.New(l)
 
 	for _, n := range p.Parse() {
-		// todo(namreg): handle raw mode
-		if t, ok := n.(node.Tag); ok {
+		if t, ok := n.(node.Tag); ok && (ctx.RawModeTag() == nil || ctx.InRawMode(t)) {
 			if tc, ok := b.tags[t.TagName()]; ok {
 				tc.processor(ctx, t, sb)
 			}
@@ -70,6 +69,7 @@ func (b *BBGO) Parse(input string) string {
 }
 
 func (b *BBGO) registerDefaultProcessors() {
+	b.RegisterTag("code", Processor(processor.Code))
 	b.RegisterTag("img", Processor(processor.Img))
 	b.RegisterTag("quote", Processor(processor.Quote))
 	b.RegisterTag("url", Processor(processor.URL))
