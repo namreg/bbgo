@@ -42,3 +42,34 @@ func TestParse(t *testing.T) {
 
 	}
 }
+
+func TestParse2(t *testing.T) {
+	token.RegisterIdentifiers("url", "b", "size")
+
+	input := "[b]hello\nworld[/b]"
+
+	expectedNodes := []node.Node{
+		node.NewOpeningTag(token.Token{Kind: token.IDENT, Literal: "b"}, "", nil),
+		node.NewText(token.Token{Kind: token.STRING, Literal: "hello"}, "hello"),
+		node.NewLine(token.Token{Kind: token.NL, Literal: "\n"}),
+		node.NewText(token.Token{Kind: token.STRING, Literal: "world"}, "world"),
+		node.NewClosingTag(token.Token{Kind: token.IDENT, Literal: "b"}),
+	}
+
+	lex := lexer.New(input)
+	p := parser.New(lex)
+
+	actualNodes := p.Parse()
+
+	for i, expected := range expectedNodes {
+		actual := actualNodes[i]
+		if expected.String() != actual.String() {
+			t.Logf("%T", actual)
+			t.Fatalf("Unexpected value node #%d. Want = %s, got = %s", i, expected, actual)
+		}
+		if !reflect.DeepEqual(expected.Token(), actual.Token()) {
+			t.Fatalf("Unexpected token node #%d. Want = %+v, got = %+v", i, expected.Token(), actual.Token())
+		}
+
+	}
+}

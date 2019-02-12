@@ -59,6 +59,8 @@ func (b *BBGO) Parse(input string) string {
 			if tc, ok := b.tags[t.TagName()]; ok {
 				tc.processor(ctx, t, sb)
 			}
+		} else if _, ok := n.(*node.Newline); ok {
+			io.WriteString(sb, "<br>")
 		} else {
 			io.WriteString(sb, html.EscapeString(n.String()))
 		}

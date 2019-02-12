@@ -18,6 +18,9 @@ const (
 	// IDENT is a token that represents a tag name.
 	IDENT Kind = "IDENT"
 
+	// NL is a new line token.
+	NL Kind = "\n"
+
 	// STRING is string token.
 	STRING Kind = "STRING"
 

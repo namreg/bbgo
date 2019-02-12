@@ -47,7 +47,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = l.newToken(token.QUOTE, l.ch)
 	case '/':
 		tok = l.newToken(token.SLASH, l.ch)
-	// TODO(namreg): NEWLINE token
+	case '\n':
+		tok = l.newToken(token.NL, l.ch)
 	case 0:
 		tok.Kind = token.EOF
 	default:
@@ -118,7 +119,7 @@ func (l *Lexer) runeInSlice(r rune, s []rune) bool {
 
 func (l *Lexer) readString() string {
 	position := l.position
-	for !l.runeInSlice(l.ch, []rune{0, '[', ']'}) {
+	for !l.runeInSlice(l.ch, []rune{0, '\n', '[', ']'}) {
 		l.readChar()
 	}
 	return string(l.input[position:l.position])

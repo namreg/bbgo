@@ -73,6 +73,8 @@ LOOP:
 			} else {
 				nodes = append(nodes, node.NewOpeningTag(tagToken, val, attrs))
 			}
+		case p.currTokenIs(token.NL):
+			nodes = append(nodes, node.NewLine(p.currToken))
 		default:
 			nodes = p.drainBuf(nodes)
 		}

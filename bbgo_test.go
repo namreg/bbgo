@@ -14,6 +14,7 @@ func TestBBGO_Parse(t *testing.T) {
 		want  string
 	}{
 		{"empty string", ``, ``},
+		{"new line", "hello\n\nworld", `hello<br><br>world`},
 		{"check escape", `<script src="'>`, `&lt;script src=&#34;&#39;&gt;`},
 		{"not defined tag", `[foo][b]hello[/b][/foo]`, `[foo]<b>hello</b>[/foo]`},
 		{"b", `[b][b]hello[/b]`, `<b><b>hello</b>`},

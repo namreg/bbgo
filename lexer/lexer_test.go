@@ -172,3 +172,39 @@ func TestNextToken3(t *testing.T) {
 		}
 	}
 }
+
+func TestNextToken4(t *testing.T) {
+	token.RegisterIdentifiers("b")
+
+	input := "[b]hello\nworld[/b]"
+
+	tests := []struct {
+		expectedKind    token.Kind
+		expectedLiteral string
+	}{
+		{token.LBRACKET, "["},
+		{token.IDENT, "b"},
+		{token.RBRACKET, "]"},
+		{token.STRING, "hello"},
+		{token.NL, "\n"},
+		{token.STRING, "world"},
+		{token.LBRACKET, "["},
+		{token.SLASH, "/"},
+		{token.IDENT, "b"},
+		{token.RBRACKET, "]"},
+
+		{token.EOF, ""},
+	}
+
+	l := lexer.New(input)
+
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tt.expectedKind != tok.Kind {
+			t.Fatalf("Test #%d failed (Unexpected kind). Want = %v, got = %v", i, tt.expectedKind, tok.Kind)
+		}
+		if tt.expectedLiteral != tok.Literal {
+			t.Fatalf("Test #%d failed (Unexpected literal). Want = %v, got = %v", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}
