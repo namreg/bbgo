@@ -140,7 +140,6 @@ func (l *Lexer) skipWhitespaces() {
 }
 
 func (l *Lexer) isValidIdentifierRune(r rune) bool {
-	// TODO(namreg): this is enough?
 	return 'a' <= r && r <= 'z' || 'A' <= r && r <= 'Z' || r == '-' || r == '*'
 }
 

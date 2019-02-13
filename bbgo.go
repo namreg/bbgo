@@ -15,34 +15,26 @@ import (
 	"github.com/namreg/bbgo/token"
 )
 
+// Processor process a bbcode tag and writes result to the given Writer.
+type Processor func(*context.Context, node.Tag, io.Writer)
+
 // BBGO is a main object that contains tag configs, parsing context and etc.
 type BBGO struct {
-	tags map[string]TagConfig
+	tags map[string]Processor
 }
 
 // New creates a new BBGO and registers default processors.
-func New( /*todo: strict mode and etc.*/ ) *BBGO {
+func New() *BBGO {
 	b := &BBGO{
-		tags: make(map[string]TagConfig),
+		tags: make(map[string]Processor),
 	}
 	b.registerDefaultProcessors()
 	return b
 }
 
 // RegisterTag registers a new tag.
-func (b *BBGO) RegisterTag(name string, opts ...TagOpt) {
-	tc := TagConfig{name: name}
-
-	for _, o := range opts {
-		o(&tc)
-	}
-
-	if tc.processor == nil {
-		tc.processor = processor.Noop
-	}
-
-	b.tags[name] = tc
-
+func (b *BBGO) RegisterTag(name string, p Processor) {
+	b.tags[name] = p
 	token.RegisterIdentifiers(name)
 }
 
@@ -56,8 +48,8 @@ func (b *BBGO) Parse(input string) string {
 
 	for _, n := range p.Parse() {
 		if t, ok := n.(node.Tag); ok && (ctx.RawModeTag() == nil || ctx.InRawMode(t)) {
-			if tc, ok := b.tags[t.TagName()]; ok {
-				tc.processor(ctx, t, sb)
+			if proc, ok := b.tags[t.TagName()]; ok {
+				proc(ctx, t, sb)
 			}
 		} else if _, ok := n.(*node.Newline); ok {
 			io.WriteString(sb, "<br>")
