@@ -20,7 +20,7 @@ const br = "<br>"
 // Processor process a bbcode tag and writes result to the given Writer.
 type Processor func(*context.Context, node.Tag, io.Writer)
 
-// BBGO is a main object that contains tag configs, parsing context and etc.
+// BBGO is a main object.
 type BBGO struct {
 	tags map[string]Processor
 }
@@ -65,6 +65,7 @@ func (b *BBGO) Parse(input string) string {
 }
 
 func (b *BBGO) registerDefaultProcessors() {
+	b.RegisterTag("color", Processor(processor.Color))
 	b.RegisterTag("code", Processor(processor.Code))
 	b.RegisterTag("img", Processor(processor.Img))
 	b.RegisterTag("quote", Processor(processor.Quote))

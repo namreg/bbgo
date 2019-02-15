@@ -28,6 +28,7 @@ func TestBBGO_Parse(t *testing.T) {
 		{"url with value", `[url=https://en.wikipedia.org]English Wikipedia[/url]`, `<a href="https://en.wikipedia.org">English Wikipedia</a>`},
 		{"code", `[code][b]some[/b]\n[i]stuff[/i]\n[/quote][/code][b]more[/b]`, `<pre>[b]some[/b]\n[i]stuff[/i]\n[/quote]</pre><b>more</b>`},
 		{"list", `[list][*] item 1[*] item 2[*] item 3[/list]`, `<ul><li> item 1</li><li> item 2</li><li> item 3</li></ul>`},
+		{"color", "[color=#00BFFF]hello[/color]", `<span style="color: #00BFFF;">hello</span>`},
 	}
 
 	for _, tt := range tests {
