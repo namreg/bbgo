@@ -2,9 +2,16 @@ package node
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/namreg/bbgo/token"
 )
+
+var closingTagPool = sync.Pool{
+	New: func() interface{} {
+		return &ClosingTag{}
+	},
+}
 
 var _ Tag = (*ClosingTag)(nil)
 
@@ -30,5 +37,7 @@ func (ct *ClosingTag) TagName() string {
 
 // NewClosingTag creates a new closing tag.
 func NewClosingTag(tok token.Token) *ClosingTag {
-	return &ClosingTag{tok: tok}
+	ct := closingTagPool.Get().(*ClosingTag)
+	ct.tok = tok
+	return ct
 }

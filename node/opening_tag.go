@@ -3,9 +3,16 @@ package node
 import (
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/namreg/bbgo/token"
 )
+
+var openingTagPool = sync.Pool{
+	New: func() interface{} {
+		return &OpeningTag{}
+	},
+}
 
 var _ Tag = (*OpeningTag)(nil)
 
@@ -18,11 +25,11 @@ type OpeningTag struct {
 
 // NewOpeningTag creates a new opening tag.
 func NewOpeningTag(tok token.Token, value string, attrs map[string]string) *OpeningTag {
-	return &OpeningTag{
-		tok:   tok,
-		value: value,
-		attrs: attrs,
-	}
+	ot := openingTagPool.Get().(*OpeningTag)
+	ot.tok = tok
+	ot.value = value
+	ot.attrs = attrs
+	return ot
 }
 
 // Token satisfies to the Node interface.

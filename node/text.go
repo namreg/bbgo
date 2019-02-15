@@ -2,9 +2,16 @@ package node
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/namreg/bbgo/token"
 )
+
+var textPool = sync.Pool{
+	New: func() interface{} {
+		return &Text{}
+	},
+}
 
 // Text is a text node.
 type Text struct {
@@ -14,7 +21,8 @@ type Text struct {
 
 // NewText creates a new text node.
 func NewText(tok token.Token, val string) *Text {
-	t := &Text{tok: tok}
+	t := textPool.Get().(*Text)
+	t.tok = tok
 	t.sb.WriteString(val)
 	return t
 }

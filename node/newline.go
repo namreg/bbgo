@@ -1,8 +1,16 @@
 package node
 
 import (
+	"sync"
+
 	"github.com/namreg/bbgo/token"
 )
+
+var newLinePool = sync.Pool{
+	New: func() interface{} {
+		return &Newline{}
+	},
+}
 
 // Newline is a new line node.
 type Newline struct {
@@ -11,7 +19,9 @@ type Newline struct {
 
 // NewLine creates a new line node.
 func NewLine(tok token.Token) *Newline {
-	return &Newline{tok: tok}
+	nl := newLinePool.Get().(*Newline)
+	nl.tok = tok
+	return nl
 }
 
 // Token satisfy the Node interface.

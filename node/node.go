@@ -18,3 +18,19 @@ type Tag interface {
 	// TagName returns a tag name.
 	TagName() string
 }
+
+// ReturnToPool puts Node to the corresponding Pool.
+func ReturnToPool(n Node) {
+	switch n.(type) {
+	case *Newline:
+		newLinePool.Put(n)
+	case *ClosingTag:
+		closingTagPool.Put(n)
+	case *OpeningTag:
+		openingTagPool.Put(n)
+	case *SelfClosingTag:
+		selfClosingTagPool.Put(n)
+	case *Text:
+		textPool.Put(n)
+	}
+}

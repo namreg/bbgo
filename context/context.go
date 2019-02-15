@@ -43,6 +43,9 @@ func (ctx *Context) InRawMode(t node.Tag) bool {
 
 // SetPrevNode sets a previous processed node.
 func (ctx *Context) SetPrevNode(n node.Node) {
+	if ctx.prev2Node != nil {
+		node.ReturnToPool(ctx.prev2Node)
+	}
 	ctx.prev2Node = ctx.prevNode
 	ctx.prevNode = n
 }

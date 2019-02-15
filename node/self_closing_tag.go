@@ -3,9 +3,16 @@ package node
 import (
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/namreg/bbgo/token"
 )
+
+var selfClosingTagPool = sync.Pool{
+	New: func() interface{} {
+		return &SelfClosingTag{}
+	},
+}
 
 var _ Tag = (*SelfClosingTag)(nil)
 
@@ -18,11 +25,11 @@ type SelfClosingTag struct {
 
 // NewSelfClosingTag creates a new opening tag.
 func NewSelfClosingTag(tok token.Token, value string, attrs map[string]string) *SelfClosingTag {
-	return &SelfClosingTag{
-		tok:   tok,
-		value: value,
-		attrs: attrs,
-	}
+	sct := selfClosingTagPool.Get().(*SelfClosingTag)
+	sct.tok = tok
+	sct.value = value
+	sct.attrs = attrs
+	return sct
 }
 
 // Token satisfies to the Node interface.
