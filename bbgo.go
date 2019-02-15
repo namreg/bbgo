@@ -46,7 +46,7 @@ func (b *BBGO) Parse(input string) string {
 	l := lexer.New(input)
 	p := parser.New(l)
 
-	for _, n := range p.Parse() {
+	for n := range p.Parse() {
 		if t, ok := n.(node.Tag); ok && (ctx.RawModeTag() == nil || ctx.InRawMode(t)) {
 			if proc, ok := b.tags[t.TagName()]; ok {
 				proc(ctx, t, sb)

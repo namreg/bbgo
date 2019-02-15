@@ -1,6 +1,7 @@
 package bbgo_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/namreg/bbgo"
@@ -37,5 +38,27 @@ func TestBBGO_Parse(t *testing.T) {
 				t.Fatalf("want = %s, got = %s", tt.want, got)
 			}
 		})
+	}
+}
+
+func BenchmarkBBGO_Parse(b *testing.B) {
+	var sb strings.Builder
+	for i := 0; i < 20000; i++ {
+		sb.WriteString("[quote=]")
+	}
+
+	sb.WriteString("hello")
+
+	for i := 0; i < 20000; i++ {
+		sb.WriteString("[/quote]")
+	}
+
+	input := sb.String()
+
+	p := bbgo.New()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		p.Parse(input)
 	}
 }
