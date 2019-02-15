@@ -15,6 +15,8 @@ import (
 	"github.com/namreg/bbgo/token"
 )
 
+const br = "<br>"
+
 // Processor process a bbcode tag and writes result to the given Writer.
 type Processor func(*context.Context, node.Tag, io.Writer)
 
@@ -46,13 +48,13 @@ func (b *BBGO) Parse(input string) string {
 	l := lexer.New(input)
 	p := parser.New(l)
 
-	for _, n := range p.Parse() {
+	for n := range p.Parse() {
 		if t, ok := n.(node.Tag); ok && (ctx.RawModeTag() == nil || ctx.InRawMode(t)) {
 			if proc, ok := b.tags[t.TagName()]; ok {
 				proc(ctx, t, sb)
 			}
 		} else if _, ok := n.(*node.Newline); ok {
-			io.WriteString(sb, "<br>")
+			io.WriteString(sb, br)
 		} else {
 			io.WriteString(sb, html.EscapeString(n.String()))
 		}

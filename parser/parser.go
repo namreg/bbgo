@@ -36,8 +36,15 @@ func New(lex *lexer.Lexer) *Parser {
 }
 
 // Parse parses an entire input and returns resulting nodes.
-func (p *Parser) Parse() []node.Node {
-	nodes := make([]node.Node, 0)
+func (p *Parser) Parse() chan node.Node {
+	ch := make(chan node.Node)
+
+	go p.parse(ch)
+
+	return ch
+}
+
+func (p *Parser) parse(ch chan node.Node) {
 LOOP:
 	for !p.currTokenIs(token.EOF) {
 	SWITCH:
@@ -46,10 +53,10 @@ LOOP:
 			p.nextToken()
 			p.nextToken()
 			if !p.currTokenIs(token.IDENT) || !p.peekTokenIs(token.RBRACKET) {
-				nodes = p.drainBuf(nodes)
+				p.drainBuf(ch)
 				break SWITCH
 			}
-			nodes = append(nodes, node.NewClosingTag(p.currToken))
+			ch <- node.NewClosingTag(p.currToken)
 			p.nextToken()
 		case p.currTokenIs(token.LBRACKET) && p.peekTokenIs(token.IDENT): // seems to be an opening tag
 			p.nextToken()
@@ -69,19 +76,20 @@ LOOP:
 				}
 			}
 			if p.prevTokenIs(token.SLASH) { // seems to be a self-closing tag
-				nodes = append(nodes, node.NewSelfClosingTag(tagToken, val, attrs))
+				ch <- node.NewSelfClosingTag(tagToken, val, attrs)
 			} else {
-				nodes = append(nodes, node.NewOpeningTag(tagToken, val, attrs))
+				ch <- node.NewOpeningTag(tagToken, val, attrs)
 			}
 		case p.currTokenIs(token.NL):
-			nodes = append(nodes, node.NewLine(p.currToken))
+			ch <- node.NewLine(p.currToken)
 		default:
-			nodes = p.drainBuf(nodes)
+			p.drainBuf(ch)
 		}
 		p.resetBuf()
 		p.nextToken()
 	}
-	return p.drainBuf(nodes)
+	p.drainBuf(ch)
+	close(ch)
 }
 
 func (p *Parser) readTagValue() string {
@@ -129,21 +137,16 @@ func (p *Parser) bufToString() string {
 	return sb.String()
 }
 
-func (p *Parser) drainBuf(nodes []node.Node) []node.Node {
+func (p *Parser) drainBuf(ch chan node.Node) {
 	if len(p.buf) == 0 {
-		return nodes
+		return
 	}
 	defer p.resetBuf()
+
 	str := p.bufToString()
-	if len(nodes) > 0 {
-		last := nodes[len(nodes)-1]
-		if tn, ok := last.(*node.Text); ok {
-			tn.Append(str)
-			return nodes
-		}
-	}
 	tok := token.Token{Kind: token.STRING, Literal: p.buf[0].Literal}
-	return append(nodes, node.NewText(tok, str))
+
+	ch <- node.NewText(tok, str)
 }
 
 func (p *Parser) currTokenIs(k token.Kind) bool {
