@@ -40,7 +40,7 @@ func (l *Lexer) NextToken() token.Token {
 		l.insideBrackets = false
 		tok = l.newToken(token.RBRACKET, l.ch)
 	case '=':
-		l.insideAttr = l.insideBrackets
+		l.insideAttr = l.insideBrackets && l.peekChar() != ']'
 		tok = l.newToken(token.EQUAL, l.ch)
 	case '"':
 		l.insideQuote = !l.insideQuote
