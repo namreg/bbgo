@@ -40,9 +40,6 @@ fmt.Println(bbg.Parse("[b]Hello World[/b]"))
  * `[code][b]anything[/b][/code]` --> `<pre>[b]anything[/b]</pre>`
  * `[list][*] item 1[*] item 2[*] item 3[/list]` --> `<ul><li> item 1</li><li> item 2</li><li> item 3</li></ul>`
 
-Lists are not currently implemented as a default tag, but can be added as a custom tag.  
-A working implementation of list tags can be found [here](https://gist.github.com/xthexder/44f4b9cec3ed7876780d)
-
 ## Adding Custom Tags
 ```go
 bbg.RegisterTag("color", bbgo.Processor(func(ctx *context.Context, tag node.Tag, w io.Writer) {
