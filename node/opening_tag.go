@@ -61,7 +61,7 @@ func (ot *OpeningTag) String() string {
 	return sb.String()
 }
 
-// TagName satifies to the Node interface.
+// TagName satisfies to the Node interface.
 func (ot *OpeningTag) TagName() string {
 	return ot.tok.Literal
 }

@@ -8,7 +8,7 @@ import (
 type Node interface {
 	// Token returns a main token of the node.
 	Token() token.Token
-	// String returns a string represention of the node.
+	// String returns a string representing of the node.
 	String() string
 }
 

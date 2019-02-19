@@ -23,7 +23,7 @@ func (ct *ClosingTag) String() string {
 	return fmt.Sprintf("[/%s]", ct.TagName())
 }
 
-// TagName satifies to the Node interface.
+// TagName satisfies to the Node interface.
 func (ct *ClosingTag) TagName() string {
 	return ct.tok.Literal
 }
