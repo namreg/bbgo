@@ -1,5 +1,5 @@
 # bbgo 
-[![Build Status](https://travis-ci.org/namreg/bbgo.png?branch=master)](http://travis-ci.org/namreg/bbgo)
+[![Build Status](https://travis-ci.org/namreg/bbgo.svg?branch=master)](https://travis-ci.org/namreg/bbgo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/namreg/bbgo)](https://goreportcard.com/report/github.com/namreg/bbgo)
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/namreg/bbgo/blob/master/LICENSE)
 
